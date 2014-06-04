@@ -8,7 +8,7 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	public Transform m_SpellSpawn; //Otherwise we can't get them in the inspector
 	public GameObject m_SpellPrefab;
 	
-	protected GameObject m_CurrentSpell;
+	protected GameObject m_CurrentSpell = null;
 	private List<IEffect> m_Effects = new List<IEffect>();
 
 	//Properties
@@ -45,14 +45,15 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 
 	protected void CastSpell()
 	{
-		Mage mage = Target.GetComponent<Mage>();
-		m_CurrentSpell.GetComponent<Spell>().Cast(mage);
+		//Mage mage = Target.GetComponent<Mage>();
+		m_CurrentSpell.GetComponent<Spell>().Cast(this);
 	}
 
 	protected void CastSpellAt()
 	{
+        Mage mage = Target.GetComponent<Mage>();
+
 		Vector2 targetPos = new Vector2(Target.transform.position.x, Target.transform.position.y);
-		Mage mage = Target.GetComponent<Mage>();
 		m_CurrentSpell.GetComponent<Spell>().CastAt(targetPos, mage);
 	}
 

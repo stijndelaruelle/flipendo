@@ -17,16 +17,18 @@ public class ShieldEffect : IEffect
 
 	public void OnUpdate ()
 	{
+        SpriteRenderer renderer = Target.gameObject.GetComponent<SpriteRenderer>();
+
 		m_Timer -= Time.deltaTime;
 		if (m_Timer <= 0.0f)
 		{
+            renderer.color = Color.white;
 			DeleteMe = true;
+            
 			return;
 		}
 
 		//Shield effect, extracts all the color channels one by one
-		SpriteRenderer renderer = Target.gameObject.GetComponent<SpriteRenderer>();
-		
 		Color color = renderer.color;
 		
 		float striveValue = 1.0f;
