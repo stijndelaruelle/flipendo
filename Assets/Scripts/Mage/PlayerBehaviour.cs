@@ -24,7 +24,7 @@ public class PlayerBehaviour : Mage
 
 	override protected void Start()
 	{
-		Target = GameObject.Find("Enemy");
+		Target = GameObject.Find("Enemy").GetComponent<Mage>();
 
 		m_GestureLibrary = new GestureLibrary(m_LibraryName);
 		m_LineRenderer = m_GestureOnScreen.GetComponent<LineRenderer>();

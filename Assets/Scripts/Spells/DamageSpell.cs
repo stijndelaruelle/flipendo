@@ -5,9 +5,8 @@ public class DamageSpell : Spell
 {
 	public DamageSpell() : base() {}
 
-	override public void OnHit()
+    override public void Execute()
 	{
 		m_Target.Damage(10);
-		Destroy (gameObject);
 	}
 }

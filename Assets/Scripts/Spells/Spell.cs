@@ -21,18 +21,18 @@ public class Spell : MonoBehaviour
 
 		if (m_Direction.x > 0.0f)
 		{
-			if (transform.position.x > m_TargetPosition.x) OnHit();
+            if (transform.position.x > m_TargetPosition.x) OnHit();
 		}
 		else
 		{
-			if (transform.position.x < m_TargetPosition.x) OnHit();
+            if (transform.position.x < m_TargetPosition.x) OnHit();
 		}
 	}
 
 	public void Cast(Mage mage)
 	{
 		m_Target = mage;
-		OnHit();
+        OnHit();
 	}
 
 	public void CastAt(Vector2 targetPos, Mage mage)
@@ -47,8 +47,19 @@ public class Spell : MonoBehaviour
 		m_IsMoving = true;
 	}
 
-	virtual public void OnHit()
-	{
-		Destroy (gameObject);
-	}
+    private void OnHit()
+    {
+        //We tell the target that he was hit.
+        //The player will then loop trough it's current effects and change the spell according to those
+        //Once the player is done with that he MIGHT call the execute function (doesn't happen when reflecting or absorbing or whatever)
+        m_Target.SpellHit(this);
+    }
+
+    virtual public void Execute()
+    {}
+
+    public void Delete()
+    {
+        Destroy(gameObject);
+    }
 }

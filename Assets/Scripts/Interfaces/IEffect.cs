@@ -6,7 +6,6 @@ public interface IEffect
 	Mage Target { get; set; }
 	bool DeleteMe { get; set; }
 
-	void OnUpdate();
-	void OnHit();
-	//void OnHeal()...
+	void Update();
+	bool ProcessSpell(Spell spell);
 }

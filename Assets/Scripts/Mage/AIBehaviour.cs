@@ -13,7 +13,7 @@ public class AIBehaviour : Mage
 	
 	override protected void Start ()
 	{
-		Target = GameObject.Find("Player");
+		Target = GameObject.Find("Player").GetComponent<Mage>();
 		base.Start();
 	}
 

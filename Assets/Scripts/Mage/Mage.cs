@@ -15,7 +15,7 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	public int MaxHealth { get; set; }
 	public int Health { get; set; }
 
-	protected GameObject Target { get; set; }
+	public Mage Target { get; set; }
 
 	//Constructor
 	public Mage() {}
@@ -30,14 +30,17 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	// Update is called once per frame
 	virtual protected void Update ()
 	{
-		//Manage our effects
+		//Manage our effects (loop backwards so we can delete within the loop)
 		for (int i = m_Effects.Count - 1; i >= 0; --i)
 		{
-			m_Effects[i].OnUpdate();
+			m_Effects[i].Update();
 			if (m_Effects[i].DeleteMe) RemoveEffect(m_Effects[i]);
 		}
 	}
 
+    //----------------
+    // Spellcasting
+    //----------------
 	protected void CreateSpell()
 	{
 		m_CurrentSpell = Instantiate(m_SpellPrefab, m_SpellSpawn.transform.position, m_SpellSpawn.transform.rotation) as GameObject;
@@ -45,16 +48,13 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 
 	protected void CastSpell()
 	{
-		//Mage mage = Target.GetComponent<Mage>();
 		m_CurrentSpell.GetComponent<Spell>().Cast(this);
 	}
 
 	protected void CastSpellAt()
 	{
-        Mage mage = Target.GetComponent<Mage>();
-
-		Vector2 targetPos = new Vector2(Target.transform.position.x, Target.transform.position.y);
-		m_CurrentSpell.GetComponent<Spell>().CastAt(targetPos, mage);
+		Vector2 targetPos = new Vector2(Target.gameObject.transform.position.x, Target.gameObject.transform.position.y);
+        m_CurrentSpell.GetComponent<Spell>().CastAt(targetPos, Target);
 	}
 
 	protected void CancelSpell()
@@ -62,9 +62,25 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 		Destroy (m_CurrentSpell);
 	}
 
-	//-------------
+    public void SpellHit(Spell spell)
+    {
+        //Loop trough all the effects (may affect the spell)
+        //They also wether or not the effect is destroyed
+        bool destroyEffect = true;
+
+        foreach (IEffect effect in m_Effects)
+        {
+            //If one effect wants to keep the spell, it will be kept no matter what the others say
+            if (!effect.ProcessSpell(spell)) destroyEffect = false;
+        }
+
+        spell.Execute();
+        if (destroyEffect) spell.Delete();
+    }
+
+	//----------------
 	// IDamagable
-	//-------------
+	//----------------
 	public void Heal(int hp)
 	{
 		Health += hp;
@@ -81,9 +97,9 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 		return (Health <= 0);
 	}
 
-	//-------------
+	//----------------
 	// IAffectable
-	//-------------
+	//----------------
 	public void AddEffect(IEffect effect)
 	{
 		m_Effects.Add(effect);

@@ -15,7 +15,7 @@ public class ShieldEffect : IEffect
 		Target = target;
 	}
 
-	public void OnUpdate ()
+	public void Update ()
 	{
         SpriteRenderer renderer = Target.gameObject.GetComponent<SpriteRenderer>();
 
@@ -47,9 +47,15 @@ public class ShieldEffect : IEffect
 		renderer.color = color;
 	}
 
-	public void OnHit()
+	public bool ProcessSpell(Spell spell)
 	{
+        //Reflect the spell
+        //Set the target of the spell to the target of our current target (basically the other mage)
 
+        Vector2 targetPos = new Vector2(Target.Target.gameObject.transform.position.x, Target.Target.gameObject.transform.position.y);
+        spell.CastAt(targetPos, Target.Target);
+
+        return false;
 	}
 
 	//OnHeal...
