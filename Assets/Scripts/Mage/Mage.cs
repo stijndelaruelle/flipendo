@@ -7,7 +7,8 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	//Fields
 	public Transform m_SpellSpawn; //Otherwise we can't get them in the inspector
 	public GameObject m_SpellPrefab;
-	
+    public GameObject m_ScrollingTextPrefab;
+
 	protected GameObject m_CurrentSpell = null;
 	private List<IEffect> m_Effects = new List<IEffect>();
 
@@ -46,15 +47,10 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 		m_CurrentSpell = Instantiate(m_SpellPrefab, m_SpellSpawn.transform.position, m_SpellSpawn.transform.rotation) as GameObject;
 	}
 
-	protected void CastSpell()
+	protected void CastSpell(Mage target)
 	{
-		m_CurrentSpell.GetComponent<Spell>().Cast(this);
-	}
-
-	protected void CastSpellAt()
-	{
-		Vector2 targetPos = new Vector2(Target.gameObject.transform.position.x, Target.gameObject.transform.position.y);
-        m_CurrentSpell.GetComponent<Spell>().CastAt(targetPos, Target);
+        Vector2 targetPos = new Vector2(target.gameObject.transform.position.x, target.gameObject.transform.position.y);
+        m_CurrentSpell.GetComponent<Spell>().CastAt(targetPos, target);
 	}
 
 	protected void CancelSpell()
@@ -74,8 +70,11 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
             if (!effect.ProcessSpell(spell)) destroyEffect = false;
         }
 
-        spell.Execute();
-        if (destroyEffect) spell.Delete();
+        if (destroyEffect)
+        {
+            spell.Execute();
+            spell.Delete();
+        }
     }
 
 	//----------------
@@ -84,11 +83,14 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	public void Heal(int hp)
 	{
 		Health += hp;
+        SpawnText("+" + hp, Color.green);
 	}
 
 	public void Damage(int hp)
 	{
 		Health -= hp;
+        SpawnText("-" + hp, Color.red);
+
 		Debug.Log ("Aww! " + Health + " out of " + MaxHealth + " left!");
 	}
 
@@ -102,6 +104,15 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	//----------------
 	public void AddEffect(IEffect effect)
 	{
+        foreach (IEffect origEffect in m_Effects)
+        {
+            if (origEffect.GetType() == effect.GetType())
+            {
+                origEffect.OnDuplicate();
+                return;
+            }
+        }
+
 		m_Effects.Add(effect);
 	}
 
@@ -109,4 +120,31 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	{
 		m_Effects.Remove(effect);
 	}
+
+    public bool HasEffect(IEffect effect)
+    {
+        foreach (IEffect origEffect in m_Effects)
+        {
+            if (origEffect.GetType() == effect.GetType())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //----------------
+    // Utility
+    //----------------
+    public void SpawnText(string text, Color color)
+    {
+        Vector3 viewPos = Camera.main.WorldToViewportPoint(new Vector3(transform.position.x, transform.position.y + 1.0f, transform.position.z));
+
+        GameObject go = Instantiate(m_ScrollingTextPrefab, viewPos, Quaternion.identity) as GameObject;
+        ScrollingText scrollingText = go.GetComponent<ScrollingText>();
+
+        scrollingText.Text = text;
+        scrollingText.TextColor = color;
+    }
 }

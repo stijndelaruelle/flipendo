@@ -22,9 +22,8 @@ public class ShieldEffect : IEffect
 		m_Timer -= Time.deltaTime;
 		if (m_Timer <= 0.0f)
 		{
-            renderer.color = Color.white;
 			DeleteMe = true;
-            
+            renderer.color = Color.white;
 			return;
 		}
 
@@ -55,8 +54,14 @@ public class ShieldEffect : IEffect
         Vector2 targetPos = new Vector2(Target.Target.gameObject.transform.position.x, Target.Target.gameObject.transform.position.y);
         spell.CastAt(targetPos, Target.Target);
 
+        Target.SpawnText("Reflected", Color.yellow);
+
         return false;
 	}
 
-	//OnHeal...
+    public void OnDuplicate()
+    {
+        //This can never happen
+        m_Timer = 0.0f;
+    }
 }

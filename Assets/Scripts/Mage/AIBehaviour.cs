@@ -38,8 +38,21 @@ public class AIBehaviour : Mage
 
 		if (m_IsCasting && m_ReleaseTimer <= 0.0f)
 		{
-			m_CurrentSpell.AddComponent<DamageSpell>();
-			CastSpellAt();
+            //Determine which spell to do and where to cast it (VERY BASIC AI)
+
+            //If the player is shielded, I will heal myself or shield myself
+            if (Target.HasEffect(new ShieldEffect(Target)))
+            {
+                m_CurrentSpell.AddComponent<HealSpell>();
+                CastSpell(this);
+            }
+            else
+            {
+                m_CurrentSpell.AddComponent<DamageSpell>();
+                CastSpell(Target);
+            }
+
+            //If the player is not shielded, I will attack
 			m_IsCasting = false;
 		}
 

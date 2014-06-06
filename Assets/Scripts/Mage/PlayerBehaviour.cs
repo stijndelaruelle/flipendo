@@ -106,14 +106,14 @@ public class PlayerBehaviour : Mage
                 if (swipeValue < 0)
                 {
                     Debug.Log("SWIPE LEFT");
-                    CastSpell();
+                    CastSpell(this);
                 }
 
                 //right swipe
                 else
                 {
                     Debug.Log("SWIPE RIGHT");
-                    CastSpellAt();
+                    CastSpell(Target);
                 }
 
                 m_SpellCharged = false;
@@ -130,14 +130,12 @@ public class PlayerBehaviour : Mage
                 if (swipeValue > 0)
                 {
                     Debug.Log("SWIPE UP");
-                    //CastSpellAt();
                 }
 
                 //down swipe
                 else
                 {
                     Debug.Log("SWIPE DOWN");
-                    //CastSpellAt();
                 }
 
                 m_SpellCharged = false;
@@ -175,16 +173,21 @@ public class PlayerBehaviour : Mage
             Gesture gesture = new Gesture(m_Points);
             Result result = gesture.Recognize(m_GestureLibrary, true);
 
+            Debug.Log(result.Name + " score: " + result.Score);
+
             if (result.Name == "rectangle")
             {
 	            m_CurrentSpell.AddComponent<DamageSpell>();
-	            //CastSpellAt();
                 m_SpellCharged = true;
             }
             else if (result.Name == "circle")
             {
 	            m_CurrentSpell.AddComponent<ShieldSpell>();
-	            //CastSpellAt();
+                m_SpellCharged = true;
+            }
+            else if (result.Name == "triangle")
+            {
+                m_CurrentSpell.AddComponent<HealSpell>();
                 m_SpellCharged = true;
             }
             else

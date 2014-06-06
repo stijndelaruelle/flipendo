@@ -8,4 +8,5 @@ public interface IEffect
 
 	void Update();
 	bool ProcessSpell(Spell spell);
+    void OnDuplicate();
 }

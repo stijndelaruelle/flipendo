@@ -3,24 +3,47 @@ using System.Collections;
 
 public class ScrollingText : MonoBehaviour
 {
-    public Color color = new Color(0.8f, 0.8f, 0.0f, 1.0f);
-    public float scroll = 0.05f; // scrolling velocity
-    public float duration = 1.5f; // time to die
-    public float alpha;
+    public string Text
+    {
+        get { return guiText.text; }
+        set
+        {
+            guiText.text = value;
+
+            GUIText[] children = GetComponentsInChildren<GUIText>();
+            foreach (GUIText child in children)
+            {
+                child.text = value;
+            }
+        }
+    }
+
+    public Color TextColor
+    {
+        get { return guiText.color; }
+        set
+        {
+            guiText.color = value;
+            m_Alpha = value.a;
+        }
+    }
+
+    public float m_ScrollSpeed = 0.1f; //Public for editor
+    public float m_Duration = 1.5f; 
+    private float m_Alpha = 1.0f;
 
     private void Start()
-    {
-        //guiText.material.color = color; // set text color
-        alpha = 1;
-    }
+    {}
 
     private void Update()
     {
-        if (alpha > 0)
+        if (m_Alpha > 0)
         {
-            transform.Translate(0.0f, scroll * Time.deltaTime, 0.0f);
-            alpha -= Time.deltaTime / duration;
-            //guiText.material.color.a = alpha;
+            transform.Translate(0.0f, m_ScrollSpeed * Time.deltaTime, 0.0f);
+            m_Alpha -= Time.deltaTime / m_Duration;
+
+            Color col = guiText.color;
+            guiText.color = new Color(col.r, col.g, col.b, m_Alpha);
         } 
         else
         {
