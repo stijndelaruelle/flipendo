@@ -11,6 +11,7 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 
 	protected GameObject m_CurrentSpell = null;
 	private List<IEffect> m_Effects = new List<IEffect>();
+    private float m_HitTimer = 0.0f;
 
 	//Properties
 	public int MaxHealth { get; set; }
@@ -37,6 +38,14 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 			m_Effects[i].Update();
 			if (m_Effects[i].DeleteMe) RemoveEffect(m_Effects[i]);
 		}
+
+        //Hit effect
+        if (m_HitTimer > 0.0f) m_HitTimer -= Time.deltaTime;
+        if (m_HitTimer <= 0.0f)
+        {
+            if (transform.position.x < 0.0f && transform.position.x != -4.0f) transform.Translate(new Vector3(-transform.position.x - 4.0f, 0.0f, 0.0f));
+            if (transform.position.x > 0.0f && transform.position.x != 4.0f) transform.Translate(new Vector3(4.0f - transform.position.x, 0.0f, 0.0f));
+        }
 	}
 
     //----------------
@@ -92,6 +101,11 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
         SpawnText("-" + hp, Color.red);
 
 		Debug.Log ("Aww! " + Health + " out of " + MaxHealth + " left!");
+
+        if (transform.position.x < 0.0f) transform.Translate(new Vector3(-0.15f, 0.0f, 0.0f));
+        if (transform.position.x > 0.0f) transform.Translate(new Vector3(0.15f, 0.0f, 0.0f));
+
+        m_HitTimer = 0.05f;
 	}
 
 	public bool IsDead()
