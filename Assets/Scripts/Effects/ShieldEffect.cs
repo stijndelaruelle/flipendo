@@ -46,6 +46,7 @@ public class ShieldEffect : IEffect
 		renderer.color = color;
 	}
 
+    //This gets called every time the owner of this effect get's hit by a spell
 	public bool ProcessSpell(Spell spell)
 	{
         //Reflect the spell

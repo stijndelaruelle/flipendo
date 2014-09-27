@@ -13,13 +13,17 @@ public class AIBehaviour : Mage
 	
 	override protected void Start ()
 	{
+        base.Start();
+
+        //As there will always be only 1 player, set him as the target immediatly
 		Target = GameObject.Find("Player").GetComponent<Mage>();
-		base.Start();
 	}
 
 	// Update is called once per frame
 	override protected void Update ()
 	{
+        base.Update();
+           
 		m_CastTimer -= Time.deltaTime;
 		if (m_ReleaseTimer > 0.0f) m_ReleaseTimer -= Time.deltaTime;
 
@@ -55,7 +59,5 @@ public class AIBehaviour : Mage
             //If the player is not shielded, I will attack
 			m_IsCasting = false;
 		}
-
-		base.Update();
 	}
 }

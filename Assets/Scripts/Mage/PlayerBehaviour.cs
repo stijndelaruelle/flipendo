@@ -24,28 +24,39 @@ public class PlayerBehaviour : Mage
 
 	override protected void Start()
 	{
+        base.Start();
+
+        //As there will always be only 1 enemy, set him as the target immediatly
 		Target = GameObject.Find("Enemy").GetComponent<Mage>();
 
+        //Load the gesture library
 		m_GestureLibrary = new GestureLibrary(m_LibraryName);
-		m_LineRenderer = m_GestureOnScreen.GetComponent<LineRenderer>();
-		m_DrawArea = new Rect(0, 0, Screen.width, Screen.height);
 
-		base.Start();
+        //Create the objects that allow us to draw spells
+        m_DrawArea = new Rect(0, 0, Screen.width, Screen.height);
+		m_LineRenderer = m_GestureOnScreen.GetComponent<LineRenderer>();
 	}
 
-	// Update is called once per frame
 	override protected void Update ()
 	{
+        base.Update();
+
 		Vector3 virtualKeyPosition = Vector3.zero;
 
 		//Get the input
 		if (Application.platform == RuntimePlatform.Android)
 		{
-			if (Input.touchCount > 0) virtualKeyPosition = new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y);
+            if (Input.touchCount > 0)
+            {
+                virtualKeyPosition = new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y);
+            }
 		}
 		else
 		{
-			if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonUp(0) || Input.GetMouseButton(0)) virtualKeyPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonUp(0) || Input.GetMouseButton(0))
+            {
+                virtualKeyPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
+            }
 		}
 
         //Right click = cancel
@@ -55,14 +66,12 @@ public class PlayerBehaviour : Mage
             m_SpellCharged = false;
         }
 
-		//If we are clicking inside of the drawarea
+		//If we are clicking inside of the drawarea either cast or draw the spell
 		if (m_DrawArea.Contains(virtualKeyPosition))
 		{
             if (m_SpellCharged) AimSpell(virtualKeyPosition);
             else                DrawSpell(virtualKeyPosition);
 		}
-
-		base.Update();
 	}
 
 	private Vector3 WorldCoordinateForGesturePoint(Vector3 gesturePoint)
@@ -151,10 +160,10 @@ public class PlayerBehaviour : Mage
         //Left mouse down: Start drawing a new spell
         if (Input.GetMouseButtonDown(0))
         {
-            m_Points.Clear();
+            //Clear all data
             ClearLineRenderer();
 
-            //Start casting a spell
+            //Create the spell -> shows visuals on the player's staff
             CreateSpell();
         }
 			
@@ -175,32 +184,33 @@ public class PlayerBehaviour : Mage
 
             Debug.Log(result.Name + " score: " + result.Score);
 
-            if (result.Name == "rectangle")
-            {
-	            m_CurrentSpell.AddComponent<DamageSpell>();
-                m_SpellCharged = true;
-            }
-            else if (result.Name == "circle")
-            {
-	            m_CurrentSpell.AddComponent<ShieldSpell>();
-                m_SpellCharged = true;
-            }
-            else if (result.Name == "triangle")
-            {
-                m_CurrentSpell.AddComponent<HealSpell>();
-                m_SpellCharged = true;
-            }
+            m_SpellCharged = true;
+            if (result.Name == "rectangle")     m_CurrentSpell.AddComponent<DamageSpell>();
+            else if (result.Name == "circle")   m_CurrentSpell.AddComponent<ShieldSpell>();
+            else if (result.Name == "triangle") m_CurrentSpell.AddComponent<HealSpell>();
             else
             {
 	            CancelSpell();
                 ClearLineRenderer();
                 m_SpellCharged = false;
             }
+
+            //For debugging, show the spell we drew
+            SpawnText(result.Name, Color.grey);
         }
+    }
+
+    private void CancelSpell()
+    {
+        base.CancelSpell();
+        
+        //Clear all data
+        ClearLineRenderer();
     }
 
     private void ClearLineRenderer()
     {
+        m_Points.Clear();
         m_LineRenderer.SetVertexCount(0);
         m_VertexCount = 0;
     }

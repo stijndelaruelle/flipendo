@@ -39,7 +39,7 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 			if (m_Effects[i].DeleteMe) RemoveEffect(m_Effects[i]);
 		}
 
-        //Hit effect
+        //Hit effect (sliding backwards)
         if (m_HitTimer > 0.0f) m_HitTimer -= Time.deltaTime;
         if (m_HitTimer <= 0.0f)
         {
@@ -64,7 +64,7 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 
 	protected void CancelSpell()
 	{
-		Destroy (m_CurrentSpell);
+		Destroy(m_CurrentSpell);
 	}
 
     public void SpellHit(Spell spell)
