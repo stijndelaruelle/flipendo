@@ -3,7 +3,10 @@ using System.Collections;
 
 public class ShieldSpell : Spell
 {
-	public ShieldSpell() : base() {}
+	public ShieldSpell() : base()
+    {
+        Drawing = "circle";
+    }
 
 	override public void Execute()
 	{

@@ -3,7 +3,10 @@ using System.Collections;
 
 public class DamageSpell : Spell
 {
-	public DamageSpell() : base() {}
+	public DamageSpell() : base()
+    {
+        Drawing = "rectangle";
+    }
 
     override public void Execute()
 	{

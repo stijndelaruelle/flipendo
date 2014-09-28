@@ -9,8 +9,14 @@ public class Spell : MonoBehaviour
 	private Vector2 m_TargetPosition;
 	private Vector2 m_Direction;
 
+    //Properties
+    public string Drawing { get; set; }
+
 	//Constructor
-	public Spell() {}
+	public Spell()
+    {
+        Drawing = "";
+    }
 
 	// Update is called once per frame
 	protected void Update ()

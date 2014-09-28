@@ -13,8 +13,9 @@ using System;
  * AN IMPORTANT NOTE: GestureLibrary's add gesture feature does not save to the XML file.
  * For this, you need to write a server sided script and call it inside AddGesture method.
  */
-public class GestureLibrary {
 
+public class GestureLibrary 
+{
     private string libraryName;
     private string libraryFilename;
     private string persistentLibraryPath;
@@ -25,18 +26,20 @@ public class GestureLibrary {
     public List<Gesture> Library { get { return library; } }
 
 
-    public GestureLibrary(string libraryName) {
+    public GestureLibrary(string libraryName)
+    {
         this.libraryName = libraryName;
         this.libraryFilename = libraryName + ".xml";
-        this.persistentLibraryPath = System.IO.Path.Combine(Application.persistentDataPath, libraryFilename);
+        //this.persistentLibraryPath = System.IO.Path.Combine(Application.persistentDataPath, libraryFilename);
+        this.persistentLibraryPath = System.IO.Path.Combine(Application.dataPath + "/Resources", libraryFilename);
         
-        if (!Application.isWebPlayer) {
-            CopyToPersistentPath();
+        if (!Application.isWebPlayer)
+        {
+            //CopyToPersistentPath();
         }
         
         LoadLibrary();
     }
-
 
     /**
      * Loads the library from xml to a list of gestures
@@ -85,15 +88,14 @@ public class GestureLibrary {
         }
     }
 
-
     /**
      * Adds a new gesture to library and then saves it to the xml.
      * The trick here is that we don't reload the newly saved xml.
      * It would have been a waste of resources. Instead, we just add
      * the new gesture to the list of gestures (the library).
      */
-    public bool AddGesture(Gesture gesture) {
-
+    public bool AddGesture(Gesture gesture)
+    {
         /**
          * Create the xml node to add to the xml file
          */
@@ -101,7 +103,8 @@ public class GestureLibrary {
         XmlElement gestureNode = gestureLibrary.CreateElement("gesture");
         gestureNode.SetAttribute("name", gesture.Name);
 
-        foreach (Vector2 v in gesture.Points) {
+        foreach (Vector2 v in gesture.Points)
+        {
             XmlElement gesturePoint = gestureLibrary.CreateElement("point");
             gesturePoint.SetAttribute("x", v.x.ToString());
             gesturePoint.SetAttribute("y", v.y.ToString());
@@ -114,8 +117,8 @@ public class GestureLibrary {
          */
         rootElement.AppendChild(gestureNode);
 
-        try {
-
+        try
+        {
             /**
              * Add the new gesture to the list of gestures
              */
@@ -129,29 +132,29 @@ public class GestureLibrary {
                 FileTools.Write(persistentLibraryPath, gestureLibrary.OuterXml);
             #endif
 
+            Debug.Log("Gesture " + gesture.Name + " added! (" + gesture.Points.Count + " points)");
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Debug.Log(e.Message);
             return false;
         }
-
     }
-
 
     /**
      * Copy to persistent data path so that we can save a new gesture
      * on all platforms (except web player)
      */
-    private void CopyToPersistentPath() {
-
+    private void CopyToPersistentPath()
+    {
         #if !UNITY_WEBPLAYER
-            if (!FileTools.Exists(persistentLibraryPath)) {
-                string fileContents = Resources.Load<TextAsset>(libraryName).text;
-                FileTools.Write(persistentLibraryPath, fileContents);
+            if (!FileTools.Exists(persistentLibraryPath))
+            {
+                //string fileContents = Resources.Load<TextAsset>(libraryName).text;
+                //FileTools.Write(persistentLibraryPath, fileContents);
             }
         #endif
         
     }
-
-
-} // end of GestureLibrary
+}

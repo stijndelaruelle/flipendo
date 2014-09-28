@@ -3,7 +3,10 @@ using System.Collections;
 
 public class HealSpell : Spell
 {
-    public HealSpell() : base() { }
+    public HealSpell() : base()
+    {
+        Drawing = "triangle";
+    }
 
     override public void Execute()
     {

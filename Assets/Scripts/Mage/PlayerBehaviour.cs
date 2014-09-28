@@ -4,21 +4,13 @@ using System.Collections.Generic;
 
 public class PlayerBehaviour : Mage
 {
-	//Fields
-	public GameObject m_GestureOnScreen;
-	public string m_LibraryName;
+    private Rect m_DrawArea;
 
-	private GestureLibrary m_GestureLibrary;
-	private List<Vector2> m_Points = new List<Vector2>();
-
-	private LineRenderer m_LineRenderer;
-	private int m_VertexCount = 0;
-	
-	private Rect m_DrawArea;
     private bool m_SpellCharged = false;
-
     Vector3 m_StartDragPos;
 
+    private string m_NewGestureName;
+      
 	//Constructor
 	public PlayerBehaviour() : base(){}
 
@@ -29,15 +21,12 @@ public class PlayerBehaviour : Mage
         //As there will always be only 1 enemy, set him as the target immediatly
 		Target = GameObject.Find("Enemy").GetComponent<Mage>();
 
-        //Load the gesture library
-		m_GestureLibrary = new GestureLibrary(m_LibraryName);
-
-        //Create the objects that allow us to draw spells
-        m_DrawArea = new Rect(0, 0, Screen.width, Screen.height);
-		m_LineRenderer = m_GestureOnScreen.GetComponent<LineRenderer>();
+        //Create a draw area
+        m_DrawArea = new Rect(400, 0, Screen.width - 800, Screen.height);
+        m_NewGestureName = "";
 	}
 
-	override protected void Update ()
+	override protected void Update()
 	{
         base.Update();
 
@@ -74,12 +63,6 @@ public class PlayerBehaviour : Mage
 		}
 	}
 
-	private Vector3 WorldCoordinateForGesturePoint(Vector3 gesturePoint)
-	{
-		Vector3 worldCoordinate = new Vector3(gesturePoint.x, gesturePoint.y, 10);
-		return Camera.main.ScreenToWorldPoint(worldCoordinate);
-	}
-
     private void AimSpell(Vector3 virtualKeyPosition)
     {
         //if (!m_SpellCharged) return;
@@ -96,8 +79,7 @@ public class PlayerBehaviour : Mage
         //Hold left mouse button: Draw a trail!
         if (Input.GetMouseButton(0))
         {
-            m_LineRenderer.SetVertexCount(++m_VertexCount);
-            m_LineRenderer.SetPosition(m_VertexCount - 1, WorldCoordinateForGesturePoint(virtualKeyPosition));
+            AddLinePoint(WorldCoordinateForGesturePoint(virtualKeyPosition));
         }
 
         //Left mouse up: stop swiping & cast spell
@@ -170,24 +152,23 @@ public class PlayerBehaviour : Mage
         //Hold left mouse button: Keep on drawing the spell
         if (Input.GetMouseButton(0))
         {
-            m_Points.Add(new Vector2(virtualKeyPosition.x, -virtualKeyPosition.y));
-				
-            m_LineRenderer.SetVertexCount(++m_VertexCount);
-            m_LineRenderer.SetPosition(m_VertexCount - 1, WorldCoordinateForGesturePoint(virtualKeyPosition));
+            m_Points.Add(new Vector2(virtualKeyPosition.x, virtualKeyPosition.y));
+            AddLinePoint(WorldCoordinateForGesturePoint(virtualKeyPosition));
         }
 			
         //Left mouse release: Our spell is drawn, wait for a swipe to cast it!
         if (Input.GetMouseButtonUp(0))
         {
             Gesture gesture = new Gesture(m_Points);
-            Result result = gesture.Recognize(m_GestureLibrary, true);
+            Result result = gesture.Recognize(m_GestureLibrary, false);
 
-            Debug.Log(result.Name + " score: " + result.Score);
+            Debug.Log(result.Name + " score: " + result.Score + " (" + m_Points.Count + " points)");
 
             m_SpellCharged = true;
             if (result.Name == "rectangle")     m_CurrentSpell.AddComponent<DamageSpell>();
             else if (result.Name == "circle")   m_CurrentSpell.AddComponent<ShieldSpell>();
             else if (result.Name == "triangle") m_CurrentSpell.AddComponent<HealSpell>();
+            else if (result.Name == "No match")  return;
             else
             {
 	            CancelSpell();
@@ -200,18 +181,16 @@ public class PlayerBehaviour : Mage
         }
     }
 
-    private void CancelSpell()
+    //TEMP TEMP TEMP
+    void OnGUI()
     {
-        base.CancelSpell();
-        
-        //Clear all data
-        ClearLineRenderer();
-    }
+        GUI.Label(new Rect(Screen.width - 340, 10, 70, 30), "Add as: ");
+        m_NewGestureName = GUI.TextField(new Rect(Screen.width - 270, 10, 200, 30), m_NewGestureName);
 
-    private void ClearLineRenderer()
-    {
-        m_Points.Clear();
-        m_LineRenderer.SetVertexCount(0);
-        m_VertexCount = 0;
+        if (GUI.Button(new Rect(Screen.width - 60, 10, 50, 30), "Add"))
+        {
+            Gesture newGesture = new Gesture(m_Points, m_NewGestureName);
+            m_GestureLibrary.AddGesture(newGesture);
+        }
     }
 }

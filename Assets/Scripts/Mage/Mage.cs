@@ -13,6 +13,18 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	private List<IEffect> m_Effects = new List<IEffect>();
     private float m_HitTimer = 0.0f;
 
+    //Drawing
+    public GameObject m_GestureOnScreen;
+    public string m_LibraryName;
+   
+    //Gesture recognition
+    protected GestureLibrary m_GestureLibrary;
+    protected List<Vector2> m_Points = new List<Vector2>();
+
+    //Line drawing
+    private LineRenderer m_LineRenderer;
+    private int m_VertexCount = 0;
+
 	//Properties
 	public int MaxHealth { get; set; }
 	public int Health { get; set; }
@@ -27,6 +39,10 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	{
 		MaxHealth = 100;
 		Health = MaxHealth;
+
+        //Load the gesture library
+        m_GestureLibrary = new GestureLibrary(m_LibraryName);
+        m_LineRenderer = m_GestureOnScreen.GetComponent<LineRenderer>();
 	}
 	
 	// Update is called once per frame
@@ -65,6 +81,9 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 	protected void CancelSpell()
 	{
 		Destroy(m_CurrentSpell);
+
+        //Clear all data
+        ClearLineRenderer();
 	}
 
     public void SpellHit(Spell spell)
@@ -160,5 +179,31 @@ public class Mage : MonoBehaviour, IDamagable, IAffectable
 
         scrollingText.Text = text;
         scrollingText.TextColor = color;
+    }
+
+    public void AddLinePoint(Vector3 point)
+    {
+        point.z = 0; //We don't need it, defaulting it just for clarity
+        m_LineRenderer.SetVertexCount(++m_VertexCount);
+        m_LineRenderer.SetPosition(m_VertexCount - 1, point);
+    }
+
+    public void ClearLineRenderer()
+    {
+        m_LineRenderer.SetVertexCount(0);
+        m_VertexCount = 0;
+        m_Points.Clear();
+    }
+
+    public Vector3 WorldCoordinateForGesturePoint(Vector3 gesturePoint)
+    {
+        Vector3 worldCoordinate = new Vector3(gesturePoint.x, gesturePoint.y, 10);
+        return Camera.main.ScreenToWorldPoint(worldCoordinate);
+    }
+
+    public Vector3 GesturePointForWorldCoordinate(Vector2 worldCoordinate)
+    {
+        Vector3 gesturePoint = new Vector3(worldCoordinate.x, worldCoordinate.y, 10);
+        return Camera.main.WorldToScreenPoint(gesturePoint);
     }
 }
